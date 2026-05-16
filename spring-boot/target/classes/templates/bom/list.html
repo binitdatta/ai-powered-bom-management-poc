@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      th:replace="~{shared/layout :: layout(~{::title}, ~{::content})}">
+<head><title>BOM Registry</title></head>
+<body>
+<th:block th:fragment="content">
+
+  <!-- Page header -->
+  <div class="d-flex align-items-center justify-content-between mb-3">
+    <div>
+      <h4 class="mb-0 text-primary-emphasis">
+        <i class="bi bi-list-ul me-2"></i>BOM Registry
+      </h4>
+      <small class="text-muted">Industrial IoT Gateway product family</small>
+    </div>
+    <a th:href="@{/bom/new}" class="btn btn-primary btn-sm">
+      <i class="bi bi-plus-lg me-1"></i>New BOM
+    </a>
+  </div>
+
+  <!-- Stats row -->
+  <div class="row g-3 mb-4" th:if="${stats}">
+    <div class="col-6 col-md-3">
+      <div class="card stat-card border-0 shadow-sm">
+        <div class="card-body py-3">
+          <div class="d-flex align-items-center gap-3">
+            <div class="stat-icon bg-primary-subtle text-primary rounded-3 p-2">
+              <i class="bi bi-diagram-3 fs-5"></i>
+            </div>
+            <div>
+              <div class="fs-4 fw-bold" th:text="${stats.total()}">0</div>
+              <div class="small text-muted">Total BOMs</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="card stat-card border-0 shadow-sm">
+        <div class="card-body py-3">
+          <div class="d-flex align-items-center gap-3">
+            <div class="stat-icon bg-success-subtle text-success rounded-3 p-2">
+              <i class="bi bi-check-circle fs-5"></i>
+            </div>
+            <div>
+              <div class="fs-4 fw-bold text-success" th:text="${stats.released()}">0</div>
+              <div class="small text-muted">Released</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="card stat-card border-0 shadow-sm">
+        <div class="card-body py-3">
+          <div class="d-flex align-items-center gap-3">
+            <div class="stat-icon bg-warning-subtle text-warning rounded-3 p-2">
+              <i class="bi bi-hourglass-split fs-5"></i>
+            </div>
+            <div>
+              <div class="fs-4 fw-bold text-warning" th:text="${stats.inReview()}">0</div>
+              <div class="small text-muted">In Review</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="card stat-card border-0 shadow-sm">
+        <div class="card-body py-3">
+          <div class="d-flex align-items-center gap-3">
+            <div class="stat-icon bg-info-subtle text-info rounded-3 p-2">
+              <i class="bi bi-currency-dollar fs-5"></i>
+            </div>
+            <div>
+              <div class="fs-4 fw-bold text-info"
+                   th:text="${#numbers.formatDecimal(stats.totalMaterialCost(), 1, 'COMMA', 0, 'POINT')}">0</div>
+              <div class="small text-muted">Total Mat. Cost (USD)</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-3">
+    <!-- Left: BOM Table -->
+    <div class="col-12 col-xl-9">
+      <div class="card border-0 shadow-sm">
+        <div class="card-header bg-transparent d-flex align-items-center justify-content-between py-2">
+          <span class="fw-semibold small">
+            <i class="bi bi-table me-1 text-primary"></i>All BOMs
+            <span class="badge bg-secondary ms-1" th:text="${#lists.size(boms)}">0</span>
+          </span>
+          <!-- Filter tabs -->
+          <div class="btn-group btn-group-sm" role="group">
+            <a th:href="@{/bom}" class="btn btn-outline-secondary active">All</a>
+            <a th:href="@{/bom(status='RELEASED')}" class="btn btn-outline-success">Released</a>
+            <a th:href="@{/bom(status='IN_REVIEW')}" class="btn btn-outline-warning">Review</a>
+            <a th:href="@{/bom(status='DRAFT')}" class="btn btn-outline-secondary">Draft</a>
+          </div>
+        </div>
+        <div class="card-body p-0">
+          <div class="table-responsive">
+            <table class="table table-hover table-sm align-middle mb-0 bomiq-table">
+              <thead class="table-light">
+                <tr>
+                  <th class="ps-3">BOM Number</th>
+                  <th>Rev</th>
+                  <th class="d-none d-md-table-cell">Title</th>
+                  <th class="d-none d-lg-table-cell">Product</th>
+                  <th>Status</th>
+                  <th class="d-none d-lg-table-cell">Level</th>
+                  <th class="d-none d-xl-table-cell text-end">Mat. Cost</th>
+                  <th class="d-none d-xl-table-cell">Risk</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr th:each="bom : ${boms}"
+                    th:classappend="${bom.levelInHierarchy > 1} ? 'bom-child-row' : ''">
+                  <td class="ps-3 fw-semibold">
+                    <span th:if="${bom.levelInHierarchy > 1}"
+                          th:style="'padding-left:' + (${bom.levelInHierarchy - 1} * 12) + 'px'"
+                          class="text-muted me-1">└</span>
+                    <a th:href="@{/bom/{id}(id=${bom.id})}"
+                       class="text-decoration-none"
+                       th:text="${bom.bomNumber}">BOM-001</a>
+                  </td>
+                  <td><span class="badge bg-secondary" th:text="${bom.bomRevision}">A</span></td>
+                  <td class="d-none d-md-table-cell text-truncate" style="max-width:200px"
+                      th:text="${bom.bomTitle}">Title</td>
+                  <td class="d-none d-lg-table-cell small text-muted"
+                      th:text="${bom.product?.productCode}">CODE</td>
+                  <td>
+                    <span class="badge"
+                          th:classappend="${bom.bomStatus?.name() == 'RELEASED'}  ? 'bg-success'   :
+                                          (${bom.bomStatus?.name() == 'IN_REVIEW'} ? 'bg-warning text-dark' :
+                                          (${bom.bomStatus?.name() == 'APPROVED'}  ? 'bg-info text-dark'  :
+                                          (${bom.bomStatus?.name() == 'DRAFT'}     ? 'bg-secondary' : 'bg-danger')))"
+                          th:text="${bom.bomStatus}">STATUS</span>
+                  </td>
+                  <td class="d-none d-lg-table-cell text-center">
+                    <span class="badge bg-primary-subtle text-primary-emphasis"
+                          th:text="${'L' + bom.levelInHierarchy}">L1</span>
+                  </td>
+                  <td class="d-none d-xl-table-cell text-end small"
+                      th:text="${bom.totalMaterialCost != null ? '$' + #numbers.formatDecimal(bom.totalMaterialCost,1,'COMMA',2,'POINT') : '—'}">—</td>
+                  <td class="d-none d-xl-table-cell">
+                    <span class="badge"
+                          th:if="${bom.riskLevel != null}"
+                          th:classappend="${bom.riskLevel?.name() == 'HIGH' or bom.riskLevel?.name() == 'CRITICAL'} ? 'bg-danger' : 'bg-success'"
+                          th:text="${bom.riskLevel}"></span>
+                  </td>
+                  <td>
+                    <div class="d-flex gap-1">
+                      <a th:href="@{/bom/{id}(id=${bom.id})}"
+                         class="btn btn-outline-primary btn-xs" title="View">
+                        <i class="bi bi-eye"></i>
+                      </a>
+                      <a th:href="@{/bom/{id}/edit(id=${bom.id})}"
+                         class="btn btn-outline-secondary btn-xs" title="Edit">
+                        <i class="bi bi-pencil"></i>
+                      </a>
+                    </div>
+                  </td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(boms)}">
+                  <td colspan="9" class="text-center text-muted py-4">
+                    <i class="bi bi-inbox fs-3 d-block mb-2"></i>No BOMs found.
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right: Hierarchy tree -->
+    <div class="col-12 col-xl-3">
+      <div class="card border-0 shadow-sm">
+        <div class="card-header bg-transparent py-2">
+          <span class="fw-semibold small">
+            <i class="bi bi-diagram-2 me-1 text-primary"></i>Hierarchy
+          </span>
+        </div>
+        <div class="card-body p-2">
+          <ul class="list-unstyled mb-0 bom-tree" th:each="root : ${rootBoms}">
+            <li>
+              <a th:href="@{/bom/{id}(id=${root.id})}"
+                 class="d-flex align-items-center gap-1 py-1 text-decoration-none bom-tree-node">
+                <i class="bi bi-folder2-open text-primary small"></i>
+                <span class="small fw-semibold" th:text="${root.bomNumber}">BOM</span>
+                <span class="badge bg-primary-subtle text-primary-emphasis ms-auto"
+                      th:text="${'L' + root.levelInHierarchy}">L1</span>
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Quick links -->
+      <div class="card border-0 shadow-sm mt-3">
+        <div class="card-header bg-transparent py-2">
+          <span class="fw-semibold small"><i class="bi bi-lightning me-1 text-info"></i>Quick Access</span>
+        </div>
+        <div class="list-group list-group-flush">
+          <a th:href="@{/components}" class="list-group-item list-group-item-action small py-2">
+            <i class="bi bi-cpu me-2 text-secondary"></i>Component Library</a>
+          <a th:href="@{/suppliers}" class="list-group-item list-group-item-action small py-2">
+            <i class="bi bi-building me-2 text-secondary"></i>Supplier Registry</a>
+          <a href="/api/v1/boms/hierarchy" target="_blank"
+             class="list-group-item list-group-item-action small py-2">
+            <i class="bi bi-braces me-2 text-secondary"></i>REST API — BOM Hierarchy</a>
+          <a href="/api/v1/boms/stats/summary" target="_blank"
+             class="list-group-item list-group-item-action small py-2">
+            <i class="bi bi-bar-chart me-2 text-secondary"></i>REST API — Stats</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</th:block>
+</body>
+</html>
