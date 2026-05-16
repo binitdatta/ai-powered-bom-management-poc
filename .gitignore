@@ -1,9 +1,17 @@
-# Environment — never commit secrets
+# ── Secrets ────────────────────────────────────────────────
 .env
 *.env
 
-# Python
+# ── Spring Boot ────────────────────────────────────────────
+spring-boot/target/
+spring-boot/*.iml
+spring-boot/.mvn/
+spring-boot/mvnw
+spring-boot/mvnw.cmd
+
+# ── Python ─────────────────────────────────────────────────
 __pycache__/
+**/__pycache__/
 *.py[cod]
 *.pyc
 .Python
@@ -12,25 +20,32 @@ dist/
 build/
 .eggs/
 
-# Virtual environment
-.venv/
-venv/
-env/
+# ── Virtual environment ─────────────────────────────────────
+flask-chatbot/.venv/
+flask-chatbot/venv/
+flask-chatbot/env/
 
-# IDE
+# ── Flask generated files ───────────────────────────────────
+flask-chatbot/flask_sessions/
+flask-chatbot/downloads/
+flask-chatbot/*.log
+flask-chatbot/gunicorn.pid
+
+# ── Excel reports ───────────────────────────────────────────
+*.xlsx
+
+# ── IDE ─────────────────────────────────────────────────────
 .idea/
 .vscode/
 *.swp
+*.iml
+**/.idea/
+**/.vscode/
 
-# macOS
+# ── macOS ───────────────────────────────────────────────────
 .DS_Store
+**/.DS_Store
 
-# Generated files
-downloads/
-*.xlsx
-logs/
+# ── Logs ────────────────────────────────────────────────────
 *.log
-
-# gunicorn
-gunicorn.pid
-
+logs/
