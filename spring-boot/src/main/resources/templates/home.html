@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>bomiq SDM — Specifications Definition Management</title>
+  <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"/>
+  <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"/>
+  <link rel="stylesheet" th:href="@{/css/bomiq.css}"/>
+  <style>
+    .hero-section {
+      background: linear-gradient(135deg, #1a3a6e 0%, #2563c7 50%, #0ea5e9 100%);
+      color: white;
+      padding: 5rem 0 4rem;
+    }
+    .hero-badge {
+      background: rgba(255,255,255,0.15);
+      border: 1px solid rgba(255,255,255,0.3);
+      border-radius: 50px;
+      padding: 0.3rem 1rem;
+      font-size: 0.78rem;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+    .feature-card {
+      border: none;
+      border-radius: 12px;
+      box-shadow: 0 2px 12px rgba(26,58,110,0.08);
+      transition: transform 0.2s, box-shadow 0.2s;
+      height: 100%;
+    }
+    .feature-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 28px rgba(26,58,110,0.15);
+    }
+    .feature-icon {
+      width: 56px; height: 56px;
+      border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.6rem;
+      margin-bottom: 1rem;
+    }
+    .arch-card {
+      background: #f0f5ff;
+      border-radius: 12px;
+      padding: 1.5rem;
+      border-left: 4px solid #2563c7;
+    }
+    .tech-pill {
+      background: #e8f0fe;
+      color: #1a3a6e;
+      border-radius: 20px;
+      padding: 0.25rem 0.8rem;
+      font-size: 0.82rem;
+      font-weight: 600;
+      display: inline-block;
+      margin: 0.2rem;
+    }
+    .stat-box {
+      background: white;
+      border-radius: 10px;
+      padding: 1.2rem 1.5rem;
+      text-align: center;
+      box-shadow: 0 1px 8px rgba(0,0,0,0.07);
+    }
+    .stat-box .stat-num { font-size: 2rem; font-weight: 700; color: #1a3a6e; }
+    .stat-box .stat-lbl { font-size: 0.82rem; color: #64748b; }
+  </style>
+</head>
+<body style="background:#f8faff;">
+
+<!-- Navbar (public) -->
+<nav class="navbar navbar-expand-lg navbar-dark" style="background: linear-gradient(90deg, #1a3a6e, #2563c7);">
+  <div class="container">
+    <a class="navbar-brand fw-bold" th:href="@{/}">
+      <i class="bi bi-diagram-3-fill me-2"></i>bomiq SDM
+    </a>
+    <div class="ms-auto d-flex gap-2">
+      <a th:if="${#authorization.expression('isAuthenticated()')}"
+         th:href="@{/bom}" class="btn btn-light btn-sm fw-semibold">
+        <i class="bi bi-speedometer2 me-1"></i>Dashboard
+      </a>
+      <a th:if="${!#authorization.expression('isAuthenticated()')}"
+         th:href="@{/oauth2/authorization/keycloak}" class="btn btn-light btn-sm fw-semibold">
+        <i class="bi bi-box-arrow-in-right me-1"></i>Sign In
+      </a>
+    </div>
+  </div>
+</nav>
+
+<!-- Hero -->
+<section class="hero-section">
+  <div class="container text-center">
+    <div class="mb-3">
+      <span class="hero-badge"><i class="bi bi-shield-check me-1"></i>Enterprise POC · Keycloak 26 PKCE</span>
+    </div>
+    <h1 class="display-4 fw-bold mb-3">Specifications Definition Management</h1>
+    <p class="lead mb-4 opacity-90" style="max-width:680px; margin:auto;">
+      A production-grade POC for managing hierarchical Bills of Materials across the full product lifecycle —
+      from concept through release — with AI-powered validation via LangGraph.
+    </p>
+    <div class="d-flex gap-3 justify-content-center flex-wrap">
+      <a th:if="${#authorization.expression('isAuthenticated()')}"
+         th:href="@{/bom}" class="btn btn-light btn-lg fw-semibold px-4">
+        <i class="bi bi-speedometer2 me-2"></i>Open Dashboard
+      </a>
+      <a th:if="${!#authorization.expression('isAuthenticated()')}"
+         th:href="@{/oauth2/authorization/keycloak}" class="btn btn-light btn-lg fw-semibold px-4">
+        <i class="bi bi-box-arrow-in-right me-2"></i>Sign In with Keycloak
+      </a>
+      <a href="http://localhost:5000" target="_blank" class="btn btn-outline-light btn-lg px-4">
+        <i class="bi bi-robot me-2"></i>AI ChatBot
+      </a>
+    </div>
+    <!-- Stats row -->
+    <div class="row g-3 justify-content-center mt-5">
+      <div class="col-6 col-md-2">
+        <div class="stat-box">
+          <div class="stat-num">20</div>
+          <div class="stat-lbl">Seeded BOMs</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-2">
+        <div class="stat-box">
+          <div class="stat-num">3</div>
+          <div class="stat-lbl">BOM Levels</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-2">
+        <div class="stat-box">
+          <div class="stat-num">40+</div>
+          <div class="stat-lbl">REST Endpoints</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-2">
+        <div class="stat-box">
+          <div class="stat-num">10</div>
+          <div class="stat-lbl">Suppliers</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Features -->
+<section class="py-5">
+  <div class="container">
+    <h2 class="text-center fw-bold mb-2" style="color:#1a3a6e;">Platform Features</h2>
+    <p class="text-center text-muted mb-5">Everything needed to manage complex product specifications</p>
+    <div class="row g-4">
+
+      <div class="col-md-4">
+        <div class="card feature-card p-4">
+          <div class="feature-icon" style="background:#dbeafe;">
+            <i class="bi bi-diagram-3 text-primary"></i>
+          </div>
+          <h5 class="fw-bold">Hierarchical BOM Management</h5>
+          <p class="text-muted small">3-level deep BOM hierarchy for the EdgeConnect Industrial IoT Gateway. Top-level products, major subassemblies, and sub-subassemblies all linked with parent-child relationships.</p>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="card feature-card p-4">
+          <div class="feature-icon" style="background:#dcfce7;">
+            <i class="bi bi-shield-check text-success"></i>
+          </div>
+          <h5 class="fw-bold">AI-Powered BOM Validation</h5>
+          <p class="text-muted small">LangGraph-orchestrated multi-step validation: obsolete component detection, high-risk supplier assessment, cost anomalies, lifecycle compliance — all in one chat prompt.</p>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="card feature-card p-4">
+          <div class="feature-icon" style="background:#fef3c7;">
+            <i class="bi bi-key-fill" style="color:#d97706;"></i>
+          </div>
+          <h5 class="fw-bold">Keycloak 26 SSO</h5>
+          <p class="text-muted small">PKCE OAuth2 flow with role-based access (admin, engineer, viewer). Both the Spring Boot app and Flask ChatBot share the same <code>bomiq</code> Keycloak realm.</p>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="card feature-card p-4">
+          <div class="feature-icon" style="background:#ede9fe;">
+            <i class="bi bi-cloud-arrow-up" style="color:#7c3aed;"></i>
+          </div>
+          <h5 class="fw-bold">Rich REST API Layer</h5>
+          <p class="text-muted small">40+ endpoints for BOM CRUD, hierarchy traversal, cost summaries, validation payloads, component lifecycle queries, and supplier risk assessments. CORS-enabled for Flask client.</p>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="card feature-card p-4">
+          <div class="feature-icon" style="background:#fce7f3;">
+            <i class="bi bi-file-earmark-spreadsheet" style="color:#db2777;"></i>
+          </div>
+          <h5 class="fw-bold">Excel Report Export</h5>
+          <p class="text-muted small">BOM validation reports downloadable as multi-tab Excel workbooks via openpyxl — header info, line items, compliance issues, supplier risks, all formatted for stakeholder review.</p>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="card feature-card p-4">
+          <div class="feature-icon" style="background:#e0f2fe;">
+            <i class="bi bi-database-check" style="color:#0369a1;"></i>
+          </div>
+          <h5 class="fw-bold">DBA-Owned Schema</h5>
+          <p class="text-muted small">Production-pattern MySQL 8: <code>ddl-auto: validate</code>, schema/seed SQL files, no H2, real constraints, indexes, and a dedicated app user with minimal privileges.</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- Architecture -->
+<section class="py-5" style="background:#f0f5ff;">
+  <div class="container">
+    <h2 class="text-center fw-bold mb-2" style="color:#1a3a6e;">Architecture Overview</h2>
+    <p class="text-center text-muted mb-5">Two applications, one Keycloak realm, one MySQL database</p>
+
+    <div class="row g-4">
+      <div class="col-lg-6">
+        <div class="arch-card">
+          <h6 class="fw-bold text-primary mb-3"><i class="bi bi-server me-2"></i>Spring Boot 3.5.9 App (Port 9086)</h6>
+          <ul class="small text-muted mb-0 ps-3">
+            <li>Context path: <code>/bomiq</code></li>
+            <li>Dual Spring Security chain: JWT for <code>/api/**</code>, OIDC session for UI</li>
+            <li>Thymeleaf + Bootstrap 5 light-blue UI</li>
+            <li>JPA + Hibernate with MySQL 8 (validate mode)</li>
+            <li>BOM/Component/Supplier/Product domain model</li>
+            <li>REST API endpoints at <code>/api/v1/**</code></li>
+          </ul>
+        </div>
+      </div>
+      <div class="col-lg-6">
+        <div class="arch-card" style="border-left-color:#0ea5e9;">
+          <h6 class="fw-bold text-info mb-3"><i class="bi bi-robot me-2"></i>Python Flask ChatBot (Port 5000)</h6>
+          <ul class="small text-muted mb-0 ps-3">
+            <li>Keycloak PKCE auth via <code>python-keycloak</code></li>
+            <li>LangGraph StateGraph for intent detection + multi-agent orchestration</li>
+            <li>Calls 4+ Spring Boot REST APIs per validation request</li>
+            <li>openpyxl for Excel workbook generation</li>
+            <li>SSE streaming responses to chat UI</li>
+            <li>Matching Bootstrap 5 light-blue theme</li>
+          </ul>
+        </div>
+      </div>
+      <div class="col-lg-6">
+        <div class="arch-card" style="border-left-color:#16a34a;">
+          <h6 class="fw-bold text-success mb-3"><i class="bi bi-key me-2"></i>Keycloak 26 (Port 8080)</h6>
+          <ul class="small text-muted mb-0 ps-3">
+            <li>Realm: <code>bomiq</code></li>
+            <li>Public PKCE client: <code>bomiq-sdm</code></li>
+            <li>Roles: <code>bomiq-admin</code>, <code>bomiq-engineer</code>, <code>bomiq-viewer</code></li>
+            <li>Back-channel logout support</li>
+            <li>Token introspection for Flask app</li>
+          </ul>
+        </div>
+      </div>
+      <div class="col-lg-6">
+        <div class="arch-card" style="border-left-color:#d97706;">
+          <h6 class="fw-bold mb-3" style="color:#d97706;"><i class="bi bi-database me-2"></i>MySQL 8 (Port 3306)</h6>
+          <ul class="small text-muted mb-0 ps-3">
+            <li>Schema: <code>bomiq_sdm</code></li>
+            <li>App user: <code>bomiq_app</code> (DML only, no DDL)</li>
+            <li>9 tables: BOM hierarchy, components, suppliers, products, UOMs</li>
+            <li>20 seeded BOMs: EdgeConnect IoT Gateway family</li>
+            <li>Full referential integrity with FK constraints</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tech Stack -->
+    <div class="text-center mt-5">
+      <h6 class="fw-bold mb-3" style="color:#1a3a6e;">Technology Stack</h6>
+      <div>
+        <span class="tech-pill">Spring Boot 3.5.9</span>
+        <span class="tech-pill">Java 21</span>
+        <span class="tech-pill">Thymeleaf 3</span>
+        <span class="tech-pill">Spring Security 6</span>
+        <span class="tech-pill">Keycloak 26</span>
+        <span class="tech-pill">MySQL 8</span>
+        <span class="tech-pill">JPA/Hibernate</span>
+        <span class="tech-pill">Python 3.12</span>
+        <span class="tech-pill">Flask 3</span>
+        <span class="tech-pill">LangGraph</span>
+        <span class="tech-pill">LangChain</span>
+        <span class="tech-pill">Claude Sonnet</span>
+        <span class="tech-pill">openpyxl</span>
+        <span class="tech-pill">Bootstrap 5.3</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="py-4 text-center text-muted small" style="background:#1a3a6e; color:rgba(255,255,255,0.6) !important;">
+  <div class="container">
+    <span style="color:rgba(255,255,255,0.6);">
+      bomiq SDM · Enterprise POC · Spring Boot 3.5.9 + Python 3.12 Flask + Keycloak 26 + MySQL 8
+    </span>
+  </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

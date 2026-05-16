@@ -1,0 +1,59 @@
+/* bomiq SDM ChatBot — matching Bootstrap 5 light-blue theme */
+:root {
+  --sr-navy:  #1a3a6e;
+  --sr-blue:  #2563c7;
+  --sr-sky:   #0ea5e9;
+  --sr-light: #f0f5ff;
+}
+
+body.bomiq-body { background: #f8faff; min-height: 100vh; display:flex; flex-direction:column; }
+
+.bomiq-navbar {
+  background: linear-gradient(90deg, var(--sr-navy), var(--sr-blue)) !important;
+  box-shadow: 0 2px 8px rgba(26,58,110,.2);
+}
+
+.bomiq-footer {
+  background: var(--sr-navy);
+  color: rgba(255,255,255,.5) !important;
+  margin-top: auto;
+}
+
+/* Hero */
+.hero-section {
+  background: linear-gradient(135deg, var(--sr-navy) 0%, var(--sr-blue) 50%, var(--sr-sky) 100%);
+  color: white;
+  padding: 5rem 0 4rem;
+}
+.hero-badge {
+  background: rgba(255,255,255,.15);
+  border: 1px solid rgba(255,255,255,.3);
+  border-radius: 50px;
+  padding: .3rem 1rem;
+  font-size: .78rem;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+.stat-box { background:white;border-radius:10px;padding:1.2rem 1.5rem;
+            text-align:center;box-shadow:0 1px 8px rgba(0,0,0,.07); }
+.stat-num { font-size:2rem;font-weight:700;color:var(--sr-navy); }
+.stat-lbl { font-size:.82rem;color:#64748b; }
+
+/* Feature cards */
+.feature-card { border:none;border-radius:12px;
+                box-shadow:0 2px 12px rgba(26,58,110,.08);
+                transition:transform .2s,box-shadow .2s;height:100%; }
+.feature-card:hover { transform:translateY(-4px);
+                      box-shadow:0 8px 28px rgba(26,58,110,.15); }
+.feature-icon { width:56px;height:56px;border-radius:14px;
+                display:flex;align-items:center;justify-content:center;
+                font-size:1.6rem;margin-bottom:1rem; }
+
+/* Arch cards */
+.arch-card { background:#f0f5ff;border-radius:12px;padding:1.5rem;
+             border-left:4px solid var(--sr-blue); }
+
+/* Markdown-style rendering in chat bubbles */
+.msg-bubble strong { font-weight: 700; }
+.msg-bubble em { font-style: italic; }
+.msg-bubble h1,.msg-bubble h2,.msg-bubble h3 { margin-top:.5rem;margin-bottom:.25rem;font-size:1rem;font-weight:700; }

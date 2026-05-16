@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      th:replace="~{shared/layout :: layout(~{::title}, ~{::main})}">
+<head>
+  <title>Suppliers — bomiq SDM</title>
+</head>
+<body>
+<main>
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h2 class="fw-bold mb-1" style="color:#1a3a6e;">
+        <i class="bi bi-truck me-2"></i>Supplier Registry
+      </h2>
+      <p class="text-muted small mb-0">Approved vendor and supplier master data</p>
+    </div>
+    <a th:href="@{/api/v1/suppliers}" target="_blank" class="btn btn-outline-primary btn-sm">
+      <i class="bi bi-code-slash me-1"></i>REST API
+    </a>
+  </div>
+
+  <!-- Flash messages -->
+  <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+    <i class="bi bi-check-circle me-1"></i>
+    <span th:text="${successMessage}"></span>
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+  </div>
+
+  <!-- Filter bar -->
+  <div class="card shadow-sm mb-4">
+    <div class="card-body py-3">
+      <form th:action="@{/suppliers}" method="get" class="row g-2 align-items-end">
+        <div class="col-md-4">
+          <label class="form-label small fw-semibold">Supplier Tier</label>
+          <select name="tier" class="form-select form-select-sm">
+            <option value="">All Tiers</option>
+            <option value="TIER_1" th:selected="${selectedTier == 'TIER1'}">Tier 1 — Preferred</option>
+            <option value="TIER_2" th:selected="${selectedTier == 'TIER2'}">Tier 2 — Approved</option>
+            <option value="TIER_3" th:selected="${selectedTier == 'TIER3'}">Tier 3 — Conditional</option>
+            <option value="SPOT"   th:selected="${selectedTier == 'SPOT'}">Spot / One-time</option>
+          </select>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label small fw-semibold">Risk Rating</label>
+          <select name="risk" class="form-select form-select-sm">
+            <option value="">All Risk Levels</option>
+            <option value="LOW"      th:selected="${selectedRisk == 'LOW'}">Low</option>
+            <option value="MEDIUM"   th:selected="${selectedRisk == 'MEDIUM'}">Medium</option>
+            <option value="HIGH"     th:selected="${selectedRisk == 'HIGH'}">High</option>
+            <option value="CRITICAL" th:selected="${selectedRisk == 'CRITICAL'}">Critical</option>
+          </select>
+        </div>
+        <div class="col-md-4 d-flex gap-2">
+          <button type="submit" class="btn btn-primary btn-sm">
+            <i class="bi bi-funnel me-1"></i>Filter
+          </button>
+          <a th:href="@{/suppliers}" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-x-circle me-1"></i>Clear
+          </a>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Stats cards -->
+  <div class="row g-3 mb-4">
+    <div class="col-6 col-md-3">
+      <div class="card sr-stat-card h-100 p-3">
+        <div class="sr-stat-value" th:text="${#lists.size(suppliers)}">0</div>
+        <div class="sr-stat-label">Total Suppliers</div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="card sr-stat-card sr-stat-card-success h-100 p-3">
+        <div class="sr-stat-value"
+             th:text="${tier1Count}">0</div>
+        <div class="sr-stat-label">Tier 1 (Preferred)</div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="card sr-stat-card sr-stat-card-warning h-100 p-3">
+        <div class="sr-stat-value"
+             th:text="${highRiskCount}">0</div>
+        <div class="sr-stat-label">High / Critical Risk</div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="card sr-stat-card sr-stat-card-info h-100 p-3">
+        <div class="sr-stat-value"
+             th:text="${activeCount}">0</div>
+        <div class="sr-stat-label">Active Suppliers</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Supplier table -->
+  <div class="card shadow-sm">
+    <div class="card-header py-3">
+      <h6 class="mb-0 fw-semibold"><i class="bi bi-table me-2 text-primary"></i>Supplier Directory</h6>
+    </div>
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table bomiq-table table-hover mb-0">
+          <thead>
+          <tr>
+            <th>Supplier Name</th>
+            <th>Code</th>
+            <th>Country</th>
+            <th>Tier</th>
+            <th>Risk</th>
+            <th>Lead Time</th>
+            <th>Currency</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr th:if="${#lists.isEmpty(suppliers)}">
+            <td colspan="9" class="text-center py-4 text-muted">
+              <i class="bi bi-inbox fs-3 d-block mb-2"></i>No suppliers found
+            </td>
+          </tr>
+          <tr th:each="sup : ${suppliers}">
+            <td>
+              <div class="fw-semibold" th:text="${sup.legalName}">—</div>
+              <div class="text-muted small" th:text="${sup.contactEmail}">—</div>
+            </td>
+            <td><code th:text="${sup.supplierCode}">—</code></td>
+            <td>
+              <span th:text="${sup.countryOfOrigin}">—</span>
+              <span th:if="${sup.headquartersCity}" class="text-muted small d-block" th:text="${sup.headquartersCity}">—</span>
+            </td>
+            <td>
+                <span th:if="${sup.supplierTier != null}"
+                      th:text="${sup.supplierTier.name().replace('_', ' ')}"
+                      th:classappend="${sup.supplierTier.name() == 'TIER1'} ? 'badge bg-success' :
+                                      (${sup.supplierTier.name() == 'TIER2'} ? 'badge bg-primary' :
+                                      (${sup.supplierTier.name() == 'TIER3'} ? 'badge bg-warning text-dark' : 'badge bg-secondary'))"
+                      class="badge">—</span>
+              <span th:if="${sup.supplierTier == null}" class="text-muted">—</span>
+            </td>
+            <td>
+                <span th:if="${false}"
+                      th:text="${sup.riskRating.name()}"
+                      th:classappend="${sup.riskRating.name() == 'LOW'} ? 'badge bg-success' :
+                                      (${sup.riskRating.name() == 'MEDIUM'} ? 'badge bg-warning text-dark' :
+                                      (${sup.riskRating.name() == 'HIGH'} ? 'badge bg-danger' : 'badge bg-dark'))"
+                      class="badge">—</span>
+              <span th:if="${true}" class="text-muted">—</span>
+            </td>
+            <td>
+                <span th:if="${sup.leadTimeDays != null}"
+                      th:text="${sup.leadTimeDays + ' days'}">—</span>
+              <span th:if="${sup.leadTimeDays == null}" class="text-muted">—</span>
+            </td>
+            <td th:text="${sup.currencyCode ?: '—'}">—</td>
+            <td>
+              <span th:if="${sup.isActive}" class="badge bg-success">Active</span>
+              <span th:unless="${sup.isActive}" class="badge bg-secondary">Inactive</span>
+            </td>
+            <td>
+              <a th:href="@{/api/v1/suppliers/{id}(id=${sup.id})}"
+                 target="_blank"
+                 class="btn btn-outline-primary btn-sm"
+                 data-bs-toggle="tooltip" title="View JSON">
+                <i class="bi bi-code-slash"></i>
+              </a>
+            </td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="card-footer text-muted small">
+      Showing <strong th:text="${#lists.size(suppliers)}">0</strong> suppliers
+    </div>
+  </div>
+
+  <!-- API Reference -->
+  <div class="card mt-4 shadow-sm">
+    <div class="card-header py-2 bg-light">
+      <h6 class="mb-0 small fw-semibold"><i class="bi bi-code-square me-2 text-primary"></i>Supplier REST API Endpoints</h6>
+    </div>
+    <div class="card-body">
+      <div class="row g-2">
+        <div class="col-md-6">
+          <div class="d-flex align-items-center p-2 rounded" style="background:#f0f5ff;">
+            <span class="badge bg-primary me-2 small">GET</span>
+            <code class="small">/api/v1/suppliers</code>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="d-flex align-items-center p-2 rounded" style="background:#f0f5ff;">
+            <span class="badge bg-primary me-2 small">GET</span>
+            <code class="small">/api/v1/suppliers/{id}</code>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="d-flex align-items-center p-2 rounded" style="background:#f0f5ff;">
+            <span class="badge bg-primary me-2 small">GET</span>
+            <code class="small">/api/v1/suppliers?tier=TIER_1</code>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="d-flex align-items-center p-2 rounded" style="background:#f0f5ff;">
+            <span class="badge bg-primary me-2 small">GET</span>
+            <code class="small">/api/v1/suppliers?riskRating=HIGH</code>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+</html>

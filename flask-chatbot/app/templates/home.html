@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+{% block title %}bomiq SDM — AI ChatBot{% endblock %}
+{% block content %}
+<!-- Hero -->
+<section class="hero-section">
+  <div class="container text-center">
+    <div class="mb-3">
+      <span class="hero-badge">
+        <i class="bi bi-shield-check me-1"></i>Enterprise POC · Keycloak 26 PKCE · Claude Sonnet
+      </span>
+    </div>
+    <h1 class="display-4 fw-bold mb-3">BomIQ SDM <span class="text-info">AI ChatBot</span></h1>
+    <p class="lead mb-4 opacity-90" style="max-width:680px;margin:auto;">
+      Natural language interface for BOM validation, component analysis, supplier assessment
+      and Excel report generation — powered by Claude Sonnet and LangGraph.
+    </p>
+    <div class="d-flex gap-3 justify-content-center flex-wrap">
+      {% if session.get('authenticated') %}
+        <a href="{{ url_for('chat.index') }}" class="btn btn-info btn-lg fw-semibold px-4">
+          <i class="bi bi-chat-dots me-2"></i>Open Chat
+        </a>
+      {% else %}
+        <a href="{{ url_for('auth.login') }}" class="btn btn-info btn-lg fw-semibold px-4">
+          <i class="bi bi-shield-lock me-2"></i>Sign In with Keycloak
+        </a>
+      {% endif %}
+      <a href="http://localhost:9086/bomiq" target="_blank" class="btn btn-outline-light btn-lg px-4">
+        <i class="bi bi-server me-2"></i>Spring Boot App
+      </a>
+    </div>
+    <!-- Stats -->
+    <div class="row g-3 justify-content-center mt-5">
+      {% for stat in [('20','Seeded BOMs'),('3','BOM Levels'),('40+','REST Endpoints'),('10','Suppliers')] %}
+      <div class="col-6 col-md-2">
+        <div class="stat-box">
+          <div class="stat-num">{{ stat[0] }}</div>
+          <div class="stat-lbl">{{ stat[1] }}</div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- Prompts showcase -->
+<section class="py-5">
+  <div class="container">
+    <h2 class="text-center fw-bold mb-2" style="color:#1a3a6e;">What Can You Ask?</h2>
+    <p class="text-center text-muted mb-5">Type natural language — the AI figures out the intent</p>
+    <div class="row g-4">
+      {% set examples = [
+        ('bi-shield-check','text-success','dbeafe','BOM Validation',
+         'Validate BOM BOM-EC5000-001','Runs full AI validation: lifecycle, supplier risk, cost anomalies → Excel report'),
+        ('bi-diagram-3','text-primary','dcfce7','BOM Hierarchy',
+         'Show me the BOM hierarchy tree','Displays parent-child BOM relationships across all product families'),
+        ('bi-cpu','text-info','fef3c7','Component Analysis',
+         'Show all obsolete and NRND components','Lists end-of-life parts with risk assessment and Excel download'),
+        ('bi-building','text-warning','ede9fe','Supplier Registry',
+         'List all Tier 1 suppliers','Retrieves preferred suppliers with lead times and Excel report'),
+        ('bi-cash-stack','text-danger','fce7f3','Cost Breakdown',
+         'What is the total cost of BOM BOM-EC5000-001?','Fetches material, labor, overhead costs for any BOM'),
+        ('bi-bar-chart','text-secondary','e0f2fe','Platform Stats',
+         'Show platform statistics','Dashboard overview: total BOMs, statuses, cost summary'),
+      ] %}
+      {% for icon, color, bg, title, example, desc in examples %}
+      <div class="col-md-4">
+        <div class="feature-card card p-4">
+          <div class="feature-icon" style="background:#{{ bg }};">
+            <i class="bi {{ icon }} {{ color }}"></i>
+          </div>
+          <h5 class="fw-bold">{{ title }}</h5>
+          <p class="text-muted small mb-2">{{ desc }}</p>
+          <code class="small text-primary">{{ example }}</code>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- Architecture -->
+<section class="py-5" style="background:#f0f5ff;">
+  <div class="container">
+    <h2 class="text-center fw-bold mb-5" style="color:#1a3a6e;">Architecture</h2>
+    <div class="row g-4">
+      {% set arches = [
+        ('0ea5e9','bi-robot','text-info','Flask ChatBot (Port 5000)',
+         ['Keycloak PKCE auth','LangGraph intent detection','Claude Sonnet AI responses',
+          'Multi-API orchestration','SSE streaming','openpyxl Excel export']),
+        ('2563c7','bi-server','text-primary','Spring Boot (Port 9086)',
+         ['Dual JWT + OIDC security','40+ REST endpoints',
+          'BOM/Component/Supplier domain','JPA/MySQL 8','Thymeleaf UI']),
+        ('16a34a','bi-key','text-success','Keycloak 26 (Port 8080)',
+         ['Realm: bomiq','PKCE S256 enforced','Roles: admin/engineer/viewer',
+          'Shared by both apps']),
+        ('d97706','bi-database','','MySQL 8 (Port 3306)',
+         ['Schema: bomiq_sdm','20 seeded BOMs','DBA-owned DDL','FK constraints']),
+      ] %}
+      {% for color, icon, text_class, title, items in arches %}
+      <div class="col-lg-6">
+        <div class="arch-card" style="border-left-color:#{{ color }};">
+          <h6 class="fw-bold mb-3 {{ text_class }}">
+            <i class="bi {{ icon }} me-2"></i>{{ title }}
+          </h6>
+          <ul class="small text-muted mb-0 ps-3">
+            {% for item in items %}<li>{{ item }}</li>{% endfor %}
+          </ul>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endblock %}

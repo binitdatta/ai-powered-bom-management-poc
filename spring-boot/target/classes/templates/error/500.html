@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{shared/layout :: layout(~{::title}, ~{::main})}">
+<head><title>Server Error — bomiq SDM</title></head>
+<body>
+<main>
+  <div class="text-center py-5">
+    <div class="display-1 fw-bold text-warning mb-3">500</div>
+    <h3 class="fw-bold mb-2" style="color:#1a3a6e;">Internal Server Error</h3>
+    <p class="text-muted" th:text="${errorMessage ?: 'Something went wrong. Please try again.'}">—</p>
+    <p th:if="${requestUri}" class="small text-muted">
+      Request: <code th:text="${requestUri}">—</code>
+    </p>
+    <a th:href="@{/bom}" class="btn btn-primary mt-3">
+      <i class="bi bi-house me-2"></i>Back to Dashboard
+    </a>
+  </div>
+</main>
+</html>

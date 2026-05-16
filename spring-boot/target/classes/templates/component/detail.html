@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      th:replace="~{shared/layout :: layout(~{::title}, ~{::main})}">
+<head>
+  <title th:text="${component.internalPartNumber + ' — bomiq SDM'}">Component — bomiq SDM</title>
+</head>
+<body>
+<main>
+
+  <!-- Breadcrumb -->
+  <nav aria-label="breadcrumb" class="mb-3">
+    <ol class="breadcrumb small">
+      <li class="breadcrumb-item"><a th:href="@{/bom}" class="text-decoration-none">Dashboard</a></li>
+      <li class="breadcrumb-item"><a th:href="@{/components}" class="text-decoration-none">Components</a></li>
+      <li class="breadcrumb-item active" th:text="${component.internalPartNumber}">—</li>
+    </ol>
+  </nav>
+
+  <!-- Header -->
+  <div class="d-flex justify-content-between align-items-start mb-4 flex-wrap gap-2">
+    <div>
+      <h2 class="fw-bold mb-1" style="color:#1a3a6e;">
+        <i class="bi bi-cpu me-2"></i>
+        <span th:text="${component.internalPartNumber}">—</span>
+        <span th:if="${component.revision}" class="text-muted fs-5 ms-2">Rev <span th:text="${component.revision}">—</span></span>
+      </h2>
+      <p class="text-muted mb-0" th:text="${component.componentDescription}">—</p>
+    </div>
+    <div class="d-flex gap-2 flex-wrap">
+      <span th:if="${component.lifecycleStatus != null}"
+            th:text="${component.lifecycleStatus.name()}"
+            th:classappend="${component.lifecycleStatus.name() == 'ACTIVE' or component.lifecycleStatus.name() == 'PREFERRED'} ? 'badge bg-success fs-6' :
+                            (${component.lifecycleStatus.name() == 'OBSOLETE'} ? 'badge bg-danger fs-6' :
+                            (${component.lifecycleStatus.name() == 'LAST_TIME_BUY'} ? 'badge bg-warning text-dark fs-6' : 'badge bg-secondary fs-6'))"
+            class="badge fs-6 align-self-center">—</span>
+      <span th:if="${component.isCritical}" class="badge bg-danger fs-6 align-self-center">
+        <i class="bi bi-exclamation-triangle me-1"></i>CRITICAL
+      </span>
+      <sec:authorize access="hasRole('ROLE_bomiq-admin') or hasRole('ROLE_bomiq-engineer')">
+        <a th:href="@{/components/{id}/edit(id=${component.id})}" class="btn btn-primary btn-sm">
+          <i class="bi bi-pencil me-1"></i>Edit
+        </a>
+      </sec:authorize>
+      <a th:href="@{/api/v1/components/{id}(id=${component.id})}" target="_blank"
+         class="btn btn-outline-primary btn-sm">
+        <i class="bi bi-code-slash me-1"></i>JSON
+      </a>
+      <a th:href="@{/components}" class="btn btn-outline-secondary btn-sm">
+        <i class="bi bi-arrow-left me-1"></i>Back
+      </a>
+    </div>
+  </div>
+
+  <div class="row g-4">
+    <!-- LEFT COLUMN -->
+    <div class="col-lg-8">
+
+      <!-- Identification -->
+      <div class="card shadow-sm mb-4">
+        <div class="card-header py-2 bg-primary text-white">
+          <h6 class="mb-0"><i class="bi bi-fingerprint me-2"></i>Part Identification</h6>
+        </div>
+        <div class="card-body">
+          <dl class="row mb-0 small">
+            <dt class="col-sm-4 text-muted">Internal Part Number</dt>
+            <dd class="col-sm-8"><code class="fw-bold" th:text="${component.internalPartNumber}">—</code></dd>
+
+            <dt class="col-sm-4 text-muted">Revision</dt>
+            <dd class="col-sm-8" th:text="${component.revision ?: '—'}">—</dd>
+
+            <dt class="col-sm-4 text-muted">MPN (Manufacturer)</dt>
+            <dd class="col-sm-8" th:text="${component.manufacturerPartNumber ?: '—'}">—</dd>
+
+            <dt class="col-sm-4 text-muted">Manufacturer</dt>
+            <dd class="col-sm-8" th:text="${component.manufacturer ?: '—'}">—</dd>
+
+            <dt class="col-sm-4 text-muted">Component Family</dt>
+            <dd class="col-sm-8" th:text="${component.componentFamily ?: '—'}">—</dd>
+
+            <dt class="col-sm-4 text-muted">Description</dt>
+            <dd class="col-sm-8" th:text="${component.componentDescription ?: '—'}">—</dd>
+
+            <dt class="col-sm-4 text-muted">Material Class</dt>
+            <dd class="col-sm-8">
+              <span th:if="${component.materialClass != null}"
+                    class="badge bg-light text-dark border"
+                    th:text="${component.materialClass.className}">—</span>
+              <span th:if="${component.materialClass == null}" class="text-muted">—</span>
+            </dd>
+
+            <dt class="col-sm-4 text-muted">Preferred Supplier</dt>
+            <dd class="col-sm-8" th:text="${component.preferredSupplier?.supplierName ?: '—'}">—</dd>
+
+            <dt class="col-sm-4 text-muted">Supplier Part Number</dt>
+            <dd class="col-sm-8" th:text="${component.supplierPartNumber ?: '—'}">—</dd>
+          </dl>
+        </div>
+      </div>
+
+      <!-- Technical Specifications -->
+      <div class="card shadow-sm mb-4">
+        <div class="card-header py-2" style="background:#e8f0fe;">
+          <h6 class="mb-0 text-primary"><i class="bi bi-tools me-2"></i>Technical Specifications</h6>
+        </div>
+        <div class="card-body">
+          <dl class="row mb-0 small">
+            <dt class="col-sm-4 text-muted">Package / Footprint</dt>
+            <dd class="col-sm-8" th:text="${component.packageType ?: '—'}">—</dd>
+
+            <dt class="col-sm-4 text-muted">Mounting Type</dt>
+            <dd class="col-sm-8" th:text="${component.mountingType ?: '—'}">—</dd>
+
+            <dt class="col-sm-4 text-muted">Operating Temp Min</dt>
+            <dd class="col-sm-8">
+              <span th:if="${component.operatingTempMin != null}"
+                    th:text="${component.operatingTempMin + ' °C'}">—</span>
+              <span th:if="${component.operatingTempMin == null}" class="text-muted">—</span>
+            </dd>
+
+            <dt class="col-sm-4 text-muted">Operating Temp Max</dt>
+            <dd class="col-sm-8">
+              <span th:if="${component.operatingTempMax != null}"
+                    th:text="${component.operatingTempMax + ' °C'}">—</span>
+              <span th:if="${component.operatingTempMax == null}" class="text-muted">—</span>
+            </dd>
+
+            <dt class="col-sm-4 text-muted">Supply Voltage Min</dt>
+            <dd class="col-sm-8">
+              <span th:if="${component.voltageRatingMin != null}"
+                    th:text="${component.voltageRatingMin + ' V'}">—</span>
+              <span th:if="${component.voltageRatingMin == null}" class="text-muted">—</span>
+            </dd>
+
+            <dt class="col-sm-4 text-muted">Supply Voltage Max</dt>
+            <dd class="col-sm-8">
+              <span th:if="${component.voltageRatingMax != null}"
+                    th:text="${component.voltageRatingMax + ' V'}">—</span>
+              <span th:if="${component.voltageRatingMax == null}" class="text-muted">—</span>
+            </dd>
+
+            <dt class="col-sm-4 text-muted">Current Rating (A)</dt>
+            <dd class="col-sm-8" th:text="${component.currentRating != null ? component.currentRating + ' A' : '—'}">—</dd>
+
+            <dt class="col-sm-4 text-muted">Power Rating (W)</dt>
+            <dd class="col-sm-8" th:text="${component.powerRating != null ? component.powerRating + ' W' : '—'}">—</dd>
+
+            <dt class="col-sm-4 text-muted">Tolerance</dt>
+            <dd class="col-sm-8" th:text="${component.tolerance ?: '—'}">—</dd>
+
+            <dt class="col-sm-4 text-muted">Weight (g)</dt>
+            <dd class="col-sm-8" th:text="${component.weightGrams != null ? component.weightGrams + ' g' : '—'}">—</dd>
+
+            <dt class="col-sm-4 text-muted">Dimensions</dt>
+            <dd class="col-sm-8" th:text="${component.dimensions ?: '—'}">—</dd>
+
+            <dt class="col-sm-4 text-muted">Color</dt>
+            <dd class="col-sm-8" th:text="${component.color ?: '—'}">—</dd>
+
+            <dt class="col-sm-4 text-muted">Material</dt>
+            <dd class="col-sm-8" th:text="${component.material ?: '—'}">—</dd>
+
+            <dt class="col-sm-4 text-muted">Datasheet URL</dt>
+            <dd class="col-sm-8">
+              <a th:if="${component.datasheetUrl != null}"
+                 th:href="${component.datasheetUrl}"
+                 target="_blank" class="text-decoration-none small">
+                <i class="bi bi-file-pdf me-1 text-danger"></i>Datasheet
+              </a>
+              <span th:if="${component.datasheetUrl == null}" class="text-muted">—</span>
+            </dd>
+          </dl>
+        </div>
+      </div>
+
+      <!-- Compliance & Regulatory -->
+      <div class="card shadow-sm mb-4">
+        <div class="card-header py-2" style="background:#f0fdf4;">
+          <h6 class="mb-0 text-success"><i class="bi bi-shield-check me-2"></i>Compliance & Regulatory</h6>
+        </div>
+        <div class="card-body">
+          <dl class="row mb-0 small">
+            <dt class="col-sm-4 text-muted">RoHS Compliant</dt>
+            <dd class="col-sm-8">
+              <span th:if="${component.rohsCompliant != null and component.rohsCompliant}"
+                    class="badge bg-success">Yes</span>
+              <span th:if="${component.rohsCompliant != null and !component.rohsCompliant}"
+                    class="badge bg-danger">No</span>
+              <span th:if="${component.rohsCompliant == null}" class="text-muted">—</span>
+            </dd>
+
+            <dt class="col-sm-4 text-muted">REACH Compliant</dt>
+            <dd class="col-sm-8">
+              <span th:if="${component.reachCompliant != null and component.reachCompliant}"
+                    class="badge bg-success">Yes</span>
+              <span th:if="${component.reachCompliant != null and !component.reachCompliant}"
+                    class="badge bg-danger">No</span>
+              <span th:if="${component.reachCompliant == null}" class="text-muted">—</span>
+            </dd>
+
+            <dt class="col-sm-4 text-muted">Conflict Minerals Free</dt>
+            <dd class="col-sm-8">
+              <span th:if="${component.conflictMineralsFree != null and component.conflictMineralsFree}"
+                    class="badge bg-success">Yes</span>
+              <span th:if="${component.conflictMineralsFree != null and !component.conflictMineralsFree}"
+                    class="badge bg-warning text-dark">Declared</span>
+              <span th:if="${component.conflictMineralsFree == null}" class="text-muted">—</span>
+            </dd>
+
+            <dt class="col-sm-4 text-muted">Export Control</dt>
+            <dd class="col-sm-8" th:text="${component.exportControlClassification ?: '—'}">—</dd>
+
+            <dt class="col-sm-4 text-muted">Hazmat Category</dt>
+            <dd class="col-sm-8" th:text="${component.hazmatCategory ?: '—'}">—</dd>
+
+            <dt class="col-sm-4 text-muted">Inspection Level</dt>
+            <dd class="col-sm-8" th:text="${component.inspectionLevel?.name() ?: '—'}">—</dd>
+
+            <dt class="col-sm-4 text-muted">Custom Tariff Code</dt>
+            <dd class="col-sm-8" th:text="${component.customsTariffCode ?: '—'}">—</dd>
+
+            <dt class="col-sm-4 text-muted">Country of Origin</dt>
+            <dd class="col-sm-8" th:text="${component.countryOfOrigin ?: '—'}">—</dd>
+          </dl>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT COLUMN -->
+    <div class="col-lg-4">
+      <!-- Cost & Supply -->
+      <div class="card shadow-sm mb-4">
+        <div class="card-header py-2" style="background:#fef3c7;">
+          <h6 class="mb-0" style="color:#92400e;"><i class="bi bi-currency-dollar me-2"></i>Cost & Supply</h6>
+        </div>
+        <div class="card-body">
+          <dl class="row mb-0 small">
+            <dt class="col-6 text-muted">Standard Cost</dt>
+            <dd class="col-6 fw-bold text-success">
+              <span th:if="${component.standardCost != null}"
+                    th:text="'$' + ${#numbers.formatDecimal(component.standardCost, 1, 4)}">—</span>
+              <span th:if="${component.standardCost == null}" class="text-muted fw-normal">—</span>
+            </dd>
+
+            <dt class="col-6 text-muted">Last Purchase Price</dt>
+            <dd class="col-6">
+              <span th:if="${component.lastPurchasePrice != null}"
+                    th:text="'$' + ${#numbers.formatDecimal(component.lastPurchasePrice, 1, 4)}">—</span>
+              <span th:if="${component.lastPurchasePrice == null}" class="text-muted">—</span>
+            </dd>
+
+            <dt class="col-6 text-muted">Lead Time</dt>
+            <dd class="col-6">
+              <span th:if="${component.leadTimeDays != null}"
+                    th:text="${component.leadTimeDays + ' days'}">—</span>
+              <span th:if="${component.leadTimeDays == null}" class="text-muted">—</span>
+            </dd>
+
+            <dt class="col-6 text-muted">Min Order Qty</dt>
+            <dd class="col-6" th:text="${component.minimumOrderQuantity ?: '—'}">—</dd>
+
+            <dt class="col-6 text-muted">Order Multiple</dt>
+            <dd class="col-6" th:text="${component.orderMultiple ?: '—'}">—</dd>
+
+            <dt class="col-6 text-muted">Safety Stock</dt>
+            <dd class="col-6" th:text="${component.safetyStockDays != null ? component.safetyStockDays + ' d' : '—'}">—</dd>
+
+            <dt class="col-6 text-muted">Procurement Type</dt>
+            <dd class="col-6" th:text="${component.procurementType?.name() ?: '—'}">—</dd>
+          </dl>
+        </div>
+      </div>
+
+      <!-- Inventory -->
+      <div class="card shadow-sm mb-4">
+        <div class="card-header py-2" style="background:#f0f5ff;">
+          <h6 class="mb-0 text-primary"><i class="bi bi-boxes me-2"></i>Inventory</h6>
+        </div>
+        <div class="card-body">
+          <dl class="row mb-0 small">
+            <dt class="col-6 text-muted">Stock On Hand</dt>
+            <dd class="col-6" th:text="${component.stockOnHand ?: '—'}">—</dd>
+
+            <dt class="col-6 text-muted">Allocated Qty</dt>
+            <dd class="col-6" th:text="${component.allocatedQuantity ?: '—'}">—</dd>
+
+            <dt class="col-6 text-muted">Reorder Point</dt>
+            <dd class="col-6" th:text="${component.reorderPoint ?: '—'}">—</dd>
+
+            <dt class="col-6 text-muted">Warehouse Location</dt>
+            <dd class="col-6" th:text="${component.warehouseLocation ?: '—'}">—</dd>
+
+            <dt class="col-6 text-muted">Shelf Life (days)</dt>
+            <dd class="col-6" th:text="${component.shelfLifeDays ?: '—'}">—</dd>
+
+            <dt class="col-6 text-muted">Storage Conditions</dt>
+            <dd class="col-6" th:text="${component.storageConditions ?: '—'}">—</dd>
+          </dl>
+        </div>
+      </div>
+
+      <!-- Flags -->
+      <div class="card shadow-sm mb-4">
+        <div class="card-header py-2">
+          <h6 class="mb-0"><i class="bi bi-flag me-2 text-danger"></i>Flags & Status</h6>
+        </div>
+        <div class="card-body">
+          <div class="d-flex flex-wrap gap-2 small">
+            <span th:if="${component.isActive}" class="badge bg-success">Active</span>
+            <span th:unless="${component.isActive}" class="badge bg-secondary">Inactive</span>
+            <span th:if="${component.isCritical}" class="badge bg-danger">Critical</span>
+            <span th:if="${component.isControlled}" class="badge bg-warning text-dark">Controlled</span>
+            <span th:if="${component.isAlternate}" class="badge bg-info">Alternate</span>
+            <span th:if="${component.rohsCompliant}" class="badge bg-success">RoHS</span>
+          </div>
+          <hr class="my-3"/>
+          <dl class="row mb-0 small">
+            <dt class="col-6 text-muted">Created</dt>
+            <dd class="col-6">
+              <span th:if="${component.createdAt != null}"
+                    th:text="${#temporals.format(component.createdAt, 'yyyy-MM-dd')}">—</span>
+              <span th:if="${component.createdAt == null}" class="text-muted">—</span>
+            </dd>
+            <dt class="col-6 text-muted">Updated</dt>
+            <dd class="col-6">
+              <span th:if="${component.updatedAt != null}"
+                    th:text="${#temporals.format(component.updatedAt, 'yyyy-MM-dd')}">—</span>
+              <span th:if="${component.updatedAt == null}" class="text-muted">—</span>
+            </dd>
+            <dt class="col-6 text-muted">By</dt>
+            <dd class="col-6" th:text="${component.createdBy ?: '—'}">—</dd>
+          </dl>
+        </div>
+      </div>
+
+      <!-- API Quick Links -->
+      <div class="card shadow-sm" id="apiExplorerBtns">
+        <div class="card-header py-2 bg-light">
+          <h6 class="mb-0 small fw-semibold"><i class="bi bi-code-slash me-2 text-primary"></i>API Explorer</h6>
+        </div>
+        <div class="card-body d-grid gap-2">
+          <a th:href="@{/api/v1/components/{id}(id=${component.id})}" target="_blank"
+             class="btn btn-outline-primary btn-sm">
+            <i class="bi bi-braces me-1"></i>Component JSON
+          </a>
+          <a th:href="@{/api/v1/components/by-supplier/{sid}(sid=${component.preferredSupplier?.id})}"
+             th:if="${component.preferredSupplier != null}"
+             target="_blank"
+             class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-truck me-1"></i>Parts from Same Supplier
+          </a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Notes -->
+  <div class="card shadow-sm mt-2" th:if="${component.notes != null}">
+    <div class="card-header py-2">
+      <h6 class="mb-0 small"><i class="bi bi-sticky me-2 text-warning"></i>Notes</h6>
+    </div>
+    <div class="card-body">
+      <p class="mb-0 small" th:text="${component.notes}">—</p>
+    </div>
+  </div>
+
+</main>
+</html>
