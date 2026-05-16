@@ -1,4 +1,6 @@
 ```
+# LinkedIn Article : https://www.linkedin.com/pulse/building-secure-ai-powered-bom-validation-binit-datta-d4rmc/
+
 # AI-Powered BOM Management POC
 
 Enterprise proof-of-concept stress-testing AI and modern cloud-native technology claims in a real Fortune 500 BOM management context.
