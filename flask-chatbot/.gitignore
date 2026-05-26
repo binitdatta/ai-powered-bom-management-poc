@@ -33,3 +33,4 @@ logs/
 
 # gunicorn
 gunicorn.pid
+logs/

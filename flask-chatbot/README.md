@@ -259,3 +259,22 @@ flask-chatbot/
 | `anthropic.AuthenticationError` | Bad API key | Verify `ANTHROPIC_API_KEY` in `.env` |
 | Spring Boot API returns 401 | Expired session token | Log out and log back in |
 | `ModuleNotFoundError` | venv not active | Run `source .venv/bin/activate` |
+
+
+cd /path/to/flask-chatbot
+deactivate                        # exit whatever venv is active
+rm -rf .venv                      # blow away the broken one
+python3 -m venv .venv             # fresh venv using system python3
+source .venv/bin/activate         # activate it
+
+which python3
+# Must show: /path/to/flask-chatbot/.venv/bin/python3
+
+which pip
+# Must show: /path/to/flask-chatbot/.venv/bin/pip
+
+
+python3 -m pip install --upgrade pip       # use python3 -m pip, NOT bare pip
+pip install -r requirements.txt
+
+python3 -c "import secrets; print(secrets.token_hex(32))"
